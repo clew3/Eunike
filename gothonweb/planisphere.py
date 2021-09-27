@@ -1,3 +1,17 @@
+import random
+
+def random_equation():
+    '''
+    Returns a dictionary of an equation paired with its answer
+    random_equation: None -> (listof Str Int)
+    '''
+    operator = random.choice([' + ', ' - ', ' * '])
+    rand1 = str(random.randrange(100))
+    rand2 = str(random.randrange(100))
+
+    equation = rand1 + operator + rand2
+    return [equation, eval(equation)]
+
 class Room(object):
 
     def __init__(self, name, description):
@@ -6,105 +20,99 @@ class Room(object):
         self.paths = {}
     
     def go(self, direction):
-        return self.paths.get(direction, None)
+        return self.paths.get(direction)
     
     def add_paths(self, paths):
         self.paths.update(paths)
 
+###################################################################################################################
+# Scenes
+###################################################################################################################
+SCENE_A_EQUATION = random_equation()
+SCENE_B_EQUATION = random_equation()
+SCENE_C_EQUATION = random_equation()
+SCENE_D_EQUATION = random_equation()
 
-central_corridor = Room("Central Corridor",
+scene_A = Room("Scene A",
 '''
-The Gothons have invaded your ship. Last surviving member. 
-Must grab bomb from armory, put it in the bridge, blow ship up, 
-escape in pod.
+Scene A
 
-You're running down the central corridor when you bump into a
-Gothon. He's blocking the armory door and will blast you. wyd?
+What is {}?
+'''.format(SCENE_A_EQUATION[0]))
 
-Options: 'shoot' 'dodge' 'tell a joke'
+scene_A_option_1 = Room("death",
+'''
+Scene A, wrong option
 ''')
 
-
-laser_weapon_armory = Room("Laser Weapon Armory",
+scene_B = Room("Scene B",
 '''
-Luckily, you tell a joke. He bursts out laughing and you zap him.
-You find the neutron bomb inside the armory. There's a keypad, and you 
-have 10 tries to open the 3 digit lock. wyd?
+Scene B
 
-Options: '0132', '*'
+What is {}?
+'''.format(SCENE_B_EQUATION[0]))
+
+scene_B_wrong = Room("death",
+'''
+Scene B, wrong option
 ''')
 
-
-the_bridge = Room("The Bridge",
+scene_C = Room("Scene C",
 '''
-You grab bomb and run towards the bridge. Bursting onto bridge you 
-surprise five Gothons who see your active bomb. wyd?
+Scene C
 
-Options: 'throw the bomb' 'slowly place the bomb'
+What is {}?
+'''.format(SCENE_C_EQUATION[0]))
+
+scene_C_wrong = Room("death", 
+'''
+Scene C, wrong option
 ''')
 
-escape_pod = Room("Escape Pod",
+scene_D = Room("Scene D",
 '''
-You put bomb under hostage and escape into the pod after placing bomb
-on the floor. You reach the escape pod chamber. There are five but some
-could be damaged. Can only check one. wyd?
-''')
+Scene D
+
+What is {}?
+'''.format(SCENE_D_EQUATION[0]))
 
 the_end_winner = Room("The End",
 '''
-You jump into the right pod and escape. You've won!
+The End: Nice
 ''')
 
 the_end_loser = Room("The End",
 '''
-You jump into the wrong pod. Bomb explodes while you're inside.
+The End
 ''')
 
-escape_pod.add_paths({'2': the_end_winner,
-                      '*': the_end_loser
+###################################################################################################################
+# Add Paths
+###################################################################################################################
+
+scene_A.add_paths({
+    str(SCENE_A_EQUATION[1]): scene_B,
+    '*': scene_A_option_1
 })
 
-central_corridor_shoot = Room("death",
-'''
-Quick on the draw you yank out your blaster and fire it at the Gothon.
-He flies into blind rage and blasts you and eats you
-''')
-
-central_corridor_dodge = Room("death",
-'''
-Like a world class boxer you dodge, weave, slip and slide right past him.
-You hit your head and he eats you.
-''')
-
-laser_weapon_armory_wrong = Room("death",
-'''
-The lock buzzes one last time and then you hear a sickening
-melting sound. You die.
-''')
-
-the_bridge_throw = Room("death", 
-'''
-In a panic you throw the bomb at the group of Gothons and
-it goes off.
-''')
-
-the_bridge.add_paths({
-    'throw the bomb': the_bridge_throw,
-    'slowly place the bomb': escape_pod
+scene_B.add_paths({
+    str(SCENE_B_EQUATION[1]): scene_C,
+    '*': scene_B_wrong
 })
 
-laser_weapon_armory.add_paths({
-    '0132': the_bridge,
-    '*': laser_weapon_armory_wrong
+scene_C.add_paths({
+    str(SCENE_C_EQUATION[1]): scene_D,
+    '*': scene_C_wrong
 })
 
-central_corridor.add_paths({
-    'shoot': central_corridor_shoot,
-    'dodge': central_corridor_dodge,
-    'tell a joke': laser_weapon_armory
+scene_D.add_paths({
+    str(SCENE_D_EQUATION[1]): the_end_winner,
+    '*': the_end_loser
 })
 
-START = 'central_corridor'
+###################################################################################################################
+
+START = 'scene_A'
 
 def load_room(name):
     return globals().get(name)
@@ -113,9 +121,3 @@ def name_room(room):
     for key, value in globals().items():
         if value == room:
             return key
-
-'''
-TODO:  don't expose globals (make sure can't jump sequence)
-       randomize variables
-       mathemzize it
-'''
