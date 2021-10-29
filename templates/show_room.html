@@ -7,15 +7,26 @@
     {{ room.description }}
 </pre>
 
-{% if room.name in ["death", "The End"] %}
-    <p><a href="/">Play Again?</a></p>
+{% if room.name in ["Death", "The End"] %}
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+            <p>Looks like you bit the dust.</p>
+            <p><a href="/">Play Again</a></p>
+        </span>
+    </div>
 {% else %}
     <p>
         <form action="/game" method="POST">
             - <input type="text" name="action"> <input type="SUBMIT">
         </form>
+        This is attempt number {{ counter.value }} out of 3.
     </p>
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+        </span> 
+    </div>
 {% endif %} 
-
 
 {% endblock %}
