@@ -1,8 +1,10 @@
 from flask import Flask, session, redirect, url_for, escape, request, jsonify, render_template
-from dungeon import dungeon_map
+from datetime import datetime
+import re
+from waterloo import waterloo_map
 from multiprocessing import Value
 
-game_map = dungeon_map
+game_map = waterloo_map
 app = Flask(__name__)
 app.secret_key = 'game_map'
 counter = Value('i', 0)
@@ -19,34 +21,45 @@ def game():
     
     if request.method == "GET":
 
-        if room_name and counter.value < 4:
+        if room_name: 
             room = game_map.load_room(room_name)
+            if counter.value > room.limit:
+                counter.value = 1
+                room = game_map.load_room(room_name + '_fail')
             return render_template("show_room.html", room=room, counter=counter)
-        else:
-            counter.value = 1
-            return render_template("you_died.html")
 
     else:
         action = request.form.get('action')
-        if room_name and action:
+        if room_name:
             room = game_map.load_room(room_name)
             next_room = room.go(action)
-
             if not next_room:
                 with counter.get_lock():
                     counter.value += 1
-                    out = counter.value
                 session['room_name'] = game_map.name_room(room)
             else:
                 counter.value = 1
-                out = counter.value
-                print(out)
                 session['room_name'] = game_map.name_room(next_room)
         return redirect(url_for("game"))
 
-@app.route('/hello')
-def hello():
-    return "hello"
+
+@app.route("/hello/<name>")
+def hello_there(name):
+    now = datetime.now()
+    formatted_now = now.strftime("%A, %d %B, %Y at %X")
+
+    # Filter the name argument to letters only using regular expressions. URL arguments
+    # can contain arbitrary text, so we restrict to safe characters only.
+    match_object = re.match("[a-zA-Z]+", name)
+
+    if match_object:
+        clean_name = match_object.group(0)
+    else:
+        clean_name = "Friend"
+
+    content = "Hello there, " + clean_name + "! It's " + formatted_now
+    return content
+
 
 @app.route('/count')
 def make_count():
@@ -58,9 +71,3 @@ def make_count():
 
 if __name__ == "__main__":
     app.run()
-
-## ToDo:
-# - add math.isclose(a, b, rel_tol=1e-5) to allow division
-# - format HTML/CSS
-# - actually make the game
-# - secret path?

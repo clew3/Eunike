@@ -7,26 +7,80 @@
     {{ room.description }}
 </pre>
 
-{% if room.name in ["Death", "The End"] %}
+
+{% if room.type == "Fail" %}
     <div id = "image" style ="text-align: center">
+        Well.
+        It's kinda sad that you aren't able to solve grade-school level math. You keep trying to figure out the answer, and by the 
+        time you do so, bible study is over. You sullenly slink back to your room and cry due to your mathematical ineptitude.
         <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
         <span style="vertical-align: middle">
-            <p>Looks like you bit the dust.</p>
             <p><a href="/">Play Again</a></p>
         </span>
     </div>
-{% else %}
+
+
+{% elif room.type == "End" %}
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+            <p><a href="/">Play Again</a></p>
+        </span>
+    </div>
+
+
+{% elif room.type == "No Input" %}
     <p>
         <form action="/game" method="POST">
-            - <input type="text" name="action"> <input type="SUBMIT">
+            <input type="hidden" name="action"> <input type="submit" value="{{room.keyword}}">
         </form>
-        This is attempt number {{ counter.value }} out of 3.
     </p>
     <div id = "image" style ="text-align: center">
         <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
         <span style="vertical-align: middle">
         </span> 
     </div>
-{% endif %} 
 
+
+{% elif room.type == "Memes" %}
+    <p>
+        nice memes, for loop?
+        <form action="/game" method="POST">
+            <input type="hidden" name="action"> <input type="submit" value="{{room.keyword}}">
+        </form>
+    </p>
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+        </span> 
+    </div>
+
+
+{% elif room.type == "Count" %}
+    <p>
+        <form action="/game" method="POST">
+            - <input type="action" name="action"> <input type="submit">
+        </form>
+        This is attempt number {{ counter.value }} out of {{room.limit}}.
+    </p>
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+        </span> 
+    </div>
+
+{% else %}
+    <p>
+        <form action="/game" method="POST">
+            - <input type="action" name="action"> <input type="submit">
+        </form>
+    </p>
+    <div id = "image" style ="text-align: center">
+        <img style="vertical-align:bottom" src={{room.background}} alt="RIP"/>
+        <span style="vertical-align: middle">
+        </span> 
+    </div>
+
+
+{% endif %} 
 {% endblock %}
